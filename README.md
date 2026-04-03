@@ -57,9 +57,23 @@ index=* "failed"
 - Login Success vs Failure Comparison
 ----
 ## Attack Scenario
-An attacker attempts to gain unauthorized access to a Linux system by performing multiple failed login attempts (brute force attack). The attacker then tries to escalate privileges by accessing the root account.
-----
+
+The system logs show multiple failed login attempts from the same source IP address within a short period of time. This pattern indicates a possible brute force attack where an attacker is trying different passwords to gain unauthorized access.
+
+Additionally, root user login activity was observed, which is considered a high-risk action. Unauthorized root access can lead to full system compromise.
+
+This scenario simulates a real-world SOC investigation where analysts detect and respond to suspicious authentication behavior.
+
 The SOC analyst monitors logs using Splunk to detect these malicious activities and prevent system compromise.
+----
+## Analyst Insight
+
+The repeated failed login attempts suggest automated attack behavior. By analyzing the frequency and source of these attempts, it is possible to identify malicious actors.
+
+Monitoring root user activity is critical because attackers often try to gain elevated privileges after initial access.
+
+Using Splunk dashboards, security analysts can quickly visualize these patterns and take immediate action.
+----
 ## SOC Analysis Workflow
 1. Logs are ingested into Splunk
 2. Analyst searches for suspicious login patterns
@@ -79,7 +93,7 @@ If these attacks are not detected:
 - Sensitive data may be stolen
 - System may be compromised
 Early detection using SIEM helps prevent major security incidents.
----
+----
 ## Conclusion
 This project demonstrates how Splunk SIEM can be used to detect cyber threats in real-time. By analyzing log data and creating dashboards, security analysts can quickly identify suspicious patterns and respond to potential attacks.
 ----
@@ -91,6 +105,17 @@ This project demonstrates how Splunk SIEM can be used to detect cyber threats in
 - Security Monitoring
 - Dashboard Creation
 ----
+## Dashboard Explanation
+
+The dashboard provides a visual representation of security events:
+
+- Failed Login Attempts: Shows frequency of login failures over time
+- Top Source IPs: Identifies the most active IP addresses involved in suspicious activity
+- Root Activity: Displays attempts involving privileged user access
+- Success vs Failure: Compares authentication outcomes
+
+These visualizations help analysts detect anomalies quickly.
+---+
 FINAL DASHBOARD STRUCTURE
 1. Failed Login Trend (timechart)
 2. Top Attacker IPs
