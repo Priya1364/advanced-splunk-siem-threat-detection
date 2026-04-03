@@ -40,6 +40,7 @@ index=* | top src
 ### 5. Successful vs Failed Logins
 index=* ("failed" OR "success") | stats count by action
 ----
+High Risk Attack Detection
 index=* "failed"
 | stats count by src
 | where count > 10
@@ -59,20 +60,21 @@ index=* "failed"
 ## Attack Scenario
 
 The system logs show multiple failed login attempts from the same source IP address within a short period of time. This pattern indicates a possible brute force attack where an attacker is trying different passwords to gain unauthorized access.
-
 Additionally, root user login activity was observed, which is considered a high-risk action. Unauthorized root access can lead to full system compromise.
-
 This scenario simulates a real-world SOC investigation where analysts detect and respond to suspicious authentication behavior.
-
 The SOC analyst monitors logs using Splunk to detect these malicious activities and prevent system compromise.
+----
+Attack Scenario:
+An attacker attempted multiple failed logins using different credentials from the same IP address. This behavior indicates a brute force attack. Continuous attempts may lead to unauthorized access if not detected.
 ----
 ## Analyst Insight
 
 The repeated failed login attempts suggest automated attack behavior. By analyzing the frequency and source of these attempts, it is possible to identify malicious actors.
-
 Monitoring root user activity is critical because attackers often try to gain elevated privileges after initial access.
-
 Using Splunk dashboards, security analysts can quickly visualize these patterns and take immediate action.
+----
+Detection Logic:
+If failed login attempts from a single IP exceed a threshold (e.g., >5), it is flagged as a potential brute force attack.
 ----
 ## SOC Analysis Workflow
 1. Logs are ingested into Splunk
