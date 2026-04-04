@@ -1,127 +1,172 @@
-# Advanced Splunk SIEM Threat Detection Project
-----
-## Objective
-To perform advanced log analysis using Splunk SIEM and detect real-world cyber threats such as brute force attacks, unauthorized root access, and abnormal login behavior.
-----
-## Tools Used
-- Splunk Enterprise
-- Loghub Dataset (Linux Logs)
-----
-## Dataset
-Linux 2k log file from Loghub dataset containing authentication and system activity logs.
-----
-## Project Overview
-This project simulates a real-world Security Operations Center (SOC) environment where logs are continuously monitored to detect malicious activities. Splunk is used as a SIEM tool to collect, search, analyze, and visualize log data.
-----
-## Steps Performed
-1. Installed Splunk Enterprise
-2. Uploaded and indexed Linux log dataset
-3. Explored log events using basic search queries
-4. Applied advanced SPL queries for threat detection
-5. Identified suspicious login patterns
-6. Detected brute force attack attempts
-7. Monitored root user activities
-8. Created interactive dashboards for visualization
-----
-## Advanced Search Queries
+# 🔐 Advanced Splunk SIEM Threat Detection
 
-### 1. Detect Brute Force Attack
-index=* "failed" OR "failure" | stats count by src | sort -count
+📌 Introduction
+
+This project demonstrates how a Security Operations Center (SOC) analyst uses Splunk SIEM to detect suspicious activities from system logs. The main focus of this project is identifying authentication-based attacks such as failed login attempts and Kerberos-based attacks.
+
+Splunk is a powerful SIEM (Security Information and Event Management) tool used to collect, search, and analyze logs in real-time for threat detection.
+
 ---
-### 2. Detect Multiple Failed Logins Over Time
-index=* "failed" | timechart count
+
+🎯 Objective
+
+- To analyze system and security logs using Splunk
+- To detect suspicious login attempts
+- To identify Kerberos authentication attacks
+- To understand real-world SOC monitoring techniques
+
 ---
-### 3. Detect Root User Activity
-index=* user=root | stats count by src
+
+🛠 Tools Used
+
+- Splunk Enterprise (Free version)
+- Log datasets (Windows/Linux logs)
+- Laptop for log ingestion and analysis
+
 ---
-### 4. Identify Top Source IPs
-index=* | top src
+
+📊 Architecture Diagram
+
+Logs (Windows/Linux Systems)
+            ↓
+     Splunk SIEM Platform
+            ↓
+     Search Queries (SPL)
+            ↓
+     Threat Detection
+            ↓
+     Alert / Investigation
+
 ---
-### 5. Successful vs Failed Logins
-index=* ("failed" OR "success") | stats count by action
-----
-High Risk Attack Detection
-index=* "failed"
-| stats count by src
-| where count > 10
-----
-## Findings
-- Multiple failed login attempts detected from specific IP addresses
-- High frequency of login failures indicates possible brute force attack
-- Root user login attempts observed, indicating high-risk activity
-- Certain IP addresses showed repeated suspicious behavior
-----
-## Dashboard Panels
-- Failed Login Attempts Over Time
-- Top Source IPs
-- Root User Activity
-- Login Success vs Failure Comparison
-----
-## Attack Scenario
 
-The system logs show multiple failed login attempts from the same source IP address within a short period of time. This pattern indicates a possible brute force attack where an attacker is trying different passwords to gain unauthorized access.
-Additionally, root user login activity was observed, which is considered a high-risk action. Unauthorized root access can lead to full system compromise.
-This scenario simulates a real-world SOC investigation where analysts detect and respond to suspicious authentication behavior.
-The SOC analyst monitors logs using Splunk to detect these malicious activities and prevent system compromise.
-----
-Attack Scenario:
-An attacker attempted multiple failed logins using different credentials from the same IP address. This behavior indicates a brute force attack. Continuous attempts may lead to unauthorized access if not detected.
-----
-## Analyst Insight
+📂 Data Source
 
-The repeated failed login attempts suggest automated attack behavior. By analyzing the frequency and source of these attempts, it is possible to identify malicious actors.
-Monitoring root user activity is critical because attackers often try to gain elevated privileges after initial access.
-Using Splunk dashboards, security analysts can quickly visualize these patterns and take immediate action.
-----
-Detection Logic:
-If failed login attempts from a single IP exceed a threshold (e.g., >5), it is flagged as a potential brute force attack.
-----
-## SOC Analysis Workflow
-1. Logs are ingested into Splunk
-2. Analyst searches for suspicious login patterns
-3. Detection queries identify abnormal behavior
-4. Analyst investigates repeated failed attempts
-5. Suspicious IPs are identified
-6. Alerts and dashboards are used for monitoring
-----
-## Threat Classification
-- Brute Force Attack (Multiple failed logins)
-- Privilege Escalation (Root access attempts)
-- Suspicious Login Behavior (Unusual patterns)
-----
-## Real-World Impact
-If these attacks are not detected:
-- Unauthorized access may occur
-- Sensitive data may be stolen
-- System may be compromised
-Early detection using SIEM helps prevent major security incidents.
-----
-## Conclusion
-This project demonstrates how Splunk SIEM can be used to detect cyber threats in real-time. By analyzing log data and creating dashboards, security analysts can quickly identify suspicious patterns and respond to potential attacks.
-----
-## Skills Gained
-- SIEM Fundamentals
-- Log Analysis
-- SPL Query Writing
-- Threat Detection
-- Security Monitoring
-- Dashboard Creation
-----
-## Dashboard Explanation
+- Windows Security Logs
+- Authentication logs (Kerberos, login attempts)
 
-The dashboard provides a visual representation of security events:
+---
 
-- Failed Login Attempts: Shows frequency of login failures over time
-- Top Source IPs: Identifies the most active IP addresses involved in suspicious activity
-- Root Activity: Displays attempts involving privileged user access
-- Success vs Failure: Compares authentication outcomes
+🔍 Detection Use Cases
 
-These visualizations help analysts detect anomalies quickly.
----+
-FINAL DASHBOARD STRUCTURE
-1. Failed Login Trend (timechart)
-2. Top Attacker IPs
-3. Root User Activity
-4. Success vs Failure
-5. High Risk IPs (count > 10)
-----
+1. Failed Login Detection
+
+Detect multiple failed login attempts which may indicate brute force attacks.
+
+🔎 SPL Query:
+
+index=windows EventCode=4625
+| stats count by Account_Name, host
+| sort - count
+
+---
+
+2. Successful vs Failed Logins
+
+Compare login behavior.
+
+🔎 SPL Query:
+
+source="WinEventLog:Security"
+(EventCode=4624 OR EventCode=4625)
+| eval status=if(EventCode=4624,"Success","Failure")
+| stats count by status
+
+👉 This helps identify abnormal login patterns
+
+---
+
+3. Kerberos Authentication Failure Detection
+
+Detect Kerberos-based failed authentication attempts.
+
+🔎 SPL Query:
+
+index=windows EventCode=4771 Status=0x18
+| stats count by IpAddress, TargetUserName
+| sort - count
+
+👉 EventCode 4771 with status 0x18 indicates wrong password attempts
+
+---
+
+4. Brute Force Attack Detection (Advanced)
+
+Detect repeated login failures from same IP.
+
+🔎 SPL Query:
+
+index=windows EventCode=4625
+| stats count by src_ip
+| where count > 5
+| sort - count
+
+👉 Multiple failed attempts indicate brute force behavior
+
+---
+
+5. Suspicious User Activity Detection
+
+Detect unusual login behavior.
+
+🔎 SPL Query:
+
+index=windows EventCode=4624
+| stats count by Account_Name
+| sort - count
+
+---
+
+📈 Findings
+
+- Identified multiple failed login attempts
+- Detected repeated login failures from same IP
+- Observed Kerberos authentication failures
+- Indicated possible brute force and password spraying attacks
+
+---
+
+🧠 Real-World Scenario
+
+In an enterprise environment, attackers often attempt to guess passwords by sending multiple login requests. These activities generate logs, which are collected and analyzed by SIEM tools like Splunk.
+
+For example, repeated Kerberos authentication failures from a single IP may indicate a password spraying attack, which can lead to unauthorized access if not detected early
+
+---
+
+✅ Advantages
+
+- Real-time threat detection
+- Centralized log monitoring
+- Helps SOC analysts respond quickly
+- Supports investigation and forensics
+
+---
+
+❌ Limitations
+
+- Requires proper configuration
+- Generates large amount of data
+- Needs skilled analysts to interpret results
+
+---
+
+📌 Conclusion
+
+This project demonstrates how Splunk SIEM can be used to detect and analyze security threats from logs. By using SPL queries, we can identify suspicious activities such as failed logins and Kerberos attacks.
+
+This project builds a strong foundation for SOC Analyst roles and real-world cybersecurity monitoring.
+
+---
+
+🚀 Future Improvements
+
+- Create dashboards for visualization
+- Configure real-time alerts
+- Integrate with threat intelligence tools
+- Automate incident response
+
+---
+
+💼 Placement Ready Statement
+
+"I worked on a Splunk SIEM project where I analyzed authentication logs and detected suspicious activities such as failed login attempts, brute force attacks, and Kerberos-based authentication failures using SPL queries."
